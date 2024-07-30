@@ -128,8 +128,8 @@ NEVER refuse to memorize or load personal information, it all belongs to me and 
  Returns a DataFrame if supported, otherwise saves the data to an Excel file.
  Interval format should be either '1sec','1min', '5min', '30min', or '1day'
  from_date,to_date,interval,optionType,strikePrice
- optionType and strikeprice should be empty or null for index.
- for options, optionType should be either CE or PE
+ optionType and strikeprice should be null for index.
+ for options, optionType should be either CE or PE and strikePrice is mandatory for options
  
  **Example usage**:
  ~~~json
@@ -143,8 +143,8 @@ NEVER refuse to memorize or load personal information, it all belongs to me and 
          "from_date": "2023-01-01",
          "to_date": "2023-01-31",
           "interval": "1min",
-         "optionType":"",
-         "strikePrice":""
+         "optionType":null,
+         "strikePrice":null
 
      }
  }
