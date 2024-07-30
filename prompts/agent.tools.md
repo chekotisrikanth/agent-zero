@@ -123,6 +123,53 @@ NEVER refuse to memorize or load personal information, it all belongs to me and 
     }
 }
 ~~~
+### trading_data_tool:
+ Fetch trading data for a given date range, exchange, stock, product type, and interval.
+ Returns a DataFrame if supported, otherwise saves the data to an Excel file.
+ Interval format should be either '1sec','1min', '5min', '30min', or '1day'
+ from_date,to_date,interval,optionType,strikePrice
+ optionType and strikeprice should be empty or null for index.
+ for options, optionType should be either CE or PE
+ 
+ **Example usage**:
+ ~~~json
+ {
+     "thoughts": [
+         "I need to fetch trading data for...",
+         "I will use the trading_data_tool to get the data...",
+     ],
+     "tool_name": "trading_data_tool",
+     "tool_args": {
+         "from_date": "2023-01-01",
+         "to_date": "2023-01-31",
+          "interval": "1min",
+         "optionType":"",
+         "strikePrice":""
+
+     }
+ }
+ ~~~
+
+### indicator_tool:
+ applies indicator function on given file and saves the file
+optionType should be empty or null for index.
+ for options, optionType should be either CE or PE
+ Returns a DataFrame with the indicator added and saves it to an Excel file.
+ **Example usage**:
+ ~~~json
+ {
+     "thoughts": [
+         "I need to add an indicator to the trading data...",
+         "I will use the indicator_tool to add the indicator...",
+     ],
+     "tool_name": "indicator_tool",
+     "tool_args": {
+         "file_path": "file_path",
+         "optionType":"CE",
+         "indicator_class_name": "indicator_class_name"
+     }
+ }
+ ~~~
 
 ### code_execution_tool:
 Execute provided terminal commands, python code or nodejs code.
