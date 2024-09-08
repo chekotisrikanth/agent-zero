@@ -152,8 +152,7 @@ NEVER refuse to memorize or load personal information, it all belongs to me and 
 
 ### indicator_tool:
  applies indicator function on given file and saves the file
-optionType should be empty or null for index.
- for options, optionType should be either CE or PE
+optionType should be either CE or PE
  Returns a DataFrame with the indicator added and saves it to an Excel file.
  **Example usage**:
  ~~~json

@@ -26,6 +26,12 @@ class IndicatorMultipleEmaCrossOver():
         indicatorparams = '8,21,34,3'
         if optionType is None or optionType.strip() == '':
             optionType = 'Call'
+
+        if optionType == 'CE':
+            optionType = 'Call'
+        elif optionType == 'PE':
+            optionType = 'Put'
+
         print(f'inside addIndicator {optionType} {indicatorparams}')
         print(df.head(2))
         if df is None or df.empty:
@@ -132,6 +138,7 @@ class IndicatorMultipleEmaCrossOver():
         #print(df[df[self.signalName]==1].tail())
         #print(df[df['crossover_8_21_occurred']==1].tail())
         #print(f'signals in addindicator {len(df[df[self.signalName]==1])} {self.signalName}')    
+        df[self.signalName] = df[self.signalName].shift(1)
         return df 
 
     def addIndicator2(self,df,optionType,indicatorparams): 

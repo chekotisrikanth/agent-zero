@@ -49,7 +49,7 @@ class BreezeClient:
         if(generateSession and breezeClient is None):
             try:
                 breezeClient = BreezeConnect(api_key=self.api_key)
-                print('generate session')
+                print('generate session')                
                 session_key = self.autoLogin(self.api_key,self.userID,self.password,self.totp,self.api_secret)
                 #breezeClient.generate_session(api_secret=self.api_secret,session_token=self.session_key)
                 print(breezeClient.get_funds())
@@ -71,6 +71,8 @@ class BreezeClient:
     
     def autoLogin(self,api_key,userID,password,totp,api_secret):
         global breezeClient
+        #breezeClient =  BreezeConnect(api_key=api_key)
+        #return
         # Set up Chrome options for headless mode
         chrome_options = ChromeOptions()
         chrome_options.add_argument("--headless")  # Run Chrome in headless mode
@@ -499,7 +501,7 @@ class BreezeClient:
                                 exchange_code=exchange,
                                 product_type=producttype
                                 )
-            print(res)
+            #print(res)
             if res is None or res['Status'] != 200:
                     print(f'Error occurred while downloading options: {res["Error"]}')
                     print('refreshing session')
@@ -579,6 +581,7 @@ class BreezeClient:
             #total_data.to_excel(file_path,index=False)                                         
         return total_data
 
+    
     def getNSEorOptionsDataWithInDates(self,from_date,to_date,symbol,optionType,strikePrice,interval):  
         total_data = pd.DataFrame()
         if isinstance(from_date, str):
@@ -590,7 +593,7 @@ class BreezeClient:
         if isinstance(to_date, date) and not isinstance(to_date, datetime):
             to_date = datetime.combine(to_date, time())    
 
-        if from_date == to_date:
+        if to_date is not None and not isinstance(to_date, datetime):
             to_date = to_date.replace(hour=23, minute=59, second=59)
        
         startdate = from_date
@@ -627,15 +630,18 @@ class BreezeClient:
                 end_of_interval = min(end_of_interval, enddate)
                 histdf = []
                 if optionType is None or optionType.strip() == '':
-                    histdf = self.getNSEData(startdate,end_of_interval,symbol,interval)
+                    #from_date,to_date,exchange,stock,producttype,interval
+                    histdf = self.getNSEData(startdate,end_of_interval,'NSE','CNXBAN','cash',interval)
                 else:
                     expiry = self.nearest_expiry_date(startdate,'CNXBAN')
-                    histdf = self.getOptionsHistoryData('NSE','CNXBAN',optionType,expiry,strikePrice,from_date,to_date,'options',interval)    
+                    histdf = self.getOptionsHistoryData('NFO','CNXBAN',optionType,expiry,strikePrice,from_date,end_of_interval,'options',interval)    
+                    tempHist = pd.DataFrame(histdf)
+                    print(tempHist.tail(2))
                 df_list.append(histdf) 
                 startdate = end_of_interval  + timedelta(seconds=nextStart) 
         
-        if df_list is not None and len(df_list) > 1:
-            #print(df_list.head(2))
+        if df_list is not None and len(df_list) > 0:
+            #print(df_list.head(2))            
             total_data = pd.concat(df_list, ignore_index=True)
         
             
@@ -644,6 +650,7 @@ class BreezeClient:
     
      #stock,optionType,expiry,strikePrice,startdate,end_of_interval,interval
      #strikePrice,option_type,expiryDate,from_date,to_date,interval= '1second',stock_code="CNXBAN",  exchange='NFO'
+     #'NSE','CNXBAN',optionType,expiry,strikePrice,from_date,end_of_interval,'options',interval
     def getOptionsHistoryData(self,exchange,stock,option_type,expiry,strikePrice,from_date,to_date,producttype,interval):
         histdf = None      
         try:     
@@ -680,9 +687,9 @@ class BreezeClient:
                     return histdf
                 histdf = pd.DataFrame(res['Success'])    
                 if histdf is not None and not histdf.empty:
-                    print(f"downloaded options data  {date} length: {len(histdf)}")
+                    print(f'downloaded options data {strike_price_str} {option_type} {from_date_format} {to_date_format} expiry {expiryDate_format}')
                     histdf.drop_duplicates(subset='datetime', inplace=True)
-                    print(f"after deleting duplicates options data  {date} length: {len(histdf)}")
+                    print(f"after deleting duplicates options data  {from_date_format} {to_date_format} length: {len(histdf)}")
                     return histdf           
         except Exception as e:
                 print(f"Exception occurred while downloading options: {e}")
@@ -1435,7 +1442,25 @@ def testfilter(df,signalPrice):
 
 
 
+def getNseData():
+    client = BreezeClient(True)
+    to_date = pd.Timestamp.now()
+    from_date = to_date - pd.Timedelta(days=3)
+    #from_date=2024-07-30 09:44:00, to_date=2024-07-30 09:54:00
+    from_date =  "2024-07-30 09:44:00"
+    to_date =  "2024-07-30 09:54:00"
+    from_date = datetime.strptime(from_date, '%Y-%m-%d %H:%M:%S')
+    to_date = datetime.strptime(to_date, '%Y-%m-%d %H:%M:%S')
+    #df = client.getNSEData(from_date,to_date,'NSE','CNXBAN','cash','5minute')
+    #print(df)
+    breezeClient = BreezeClient(True)      
+    data = breezeClient.getNSEorOptionsDataWithInDates(from_date,to_date,'CNXBAN',None,None,'1min') 
+    data.to_excel('nseData.xlsx',index=False)
+    print(data)
 
+getNseData()    
+
+#print(df)
 #downloadOptionsData('11-Oct-2023','44200','call','1second')
 #ema5PlL()
 #client = BreezeClient(True)
